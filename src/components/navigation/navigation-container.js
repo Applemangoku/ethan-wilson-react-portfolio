@@ -5,24 +5,24 @@ import { withRouter } from "react-router";
 import { NavLink } from "react-router-dom";
 
 const NavigationComponent = props => {
-    const dynamicLink = (route, linkText) => {
-        return (
-            <div className="nav-link-wrapper">
-                <NavLink to={route} activeClassName="nav-link-active">
-                    {linkText}
-                </NavLink> 
-            </div>
-        );
-    };
+  const dynamicLink = (route, linkText) => {
+    return (
+      <div className="nav-link-wrapper">
+        <NavLink to={route} activeClassName="nav-link-active">
+          {linkText}
+        </NavLink>
+      </div>
+    );
+  };
 
-    const handleSignOut = () => {
-        axios
-        .delete("https://api.devcamp.space/logout", {withCredentials: true})
-        .then(response => {
-            if (response.status === 200) {
-                props.history.push("/");
-                props.handleSuccessfullLogout();
-            }
+  const handleSignOut = () => {
+    axios
+      .delete("https://api.devcamp.space/logout", { withCredentials: true })
+      .then(response => {
+        if (response.status === 200) {
+          props.history.push("/");
+          props.handleSuccessfulLogout();
+        }
             return response.data;
         })
         .catch(error => {
