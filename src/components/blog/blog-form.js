@@ -9,6 +9,7 @@ export default class BlogForm extends Component {
         super(props);
 
         this.state = {
+            id: "",
             title: "",
             blog_status: "",
             content: "",
@@ -24,6 +25,19 @@ export default class BlogForm extends Component {
         this.componentConfig = this.componentConfig.bind(this);
         this.djsConfig = this.djsConfig.bind(this);
         this.handleFeaturedImageDrop = this.handleFeaturedImageDrop.bind(this);
+
+        this.featuredImageRef = React.createRef();
+
+    }
+
+    UNSAFE_componentWillMount() {
+        if (this.props.editMode) {
+            this.setState({
+                id: this.props.blog.id,
+                title: this.props.blog.title,
+                status: this.props.blog.status
+            });
+        }
     }
 
     componentConfig() {
@@ -58,6 +72,13 @@ export default class BlogForm extends Component {
         formData.append("portfolio_blog[blog_status]", this.state.blog_status);
         formData.append("portfolio_blog[content]", this.state.content);
 
+        if (this.state.featured_image) {
+            formData.append(
+                "portfolio_blog[featured_image]", 
+                this.state.featured_image
+            );
+        }
+
         return formData;
     }
 
@@ -69,10 +90,15 @@ export default class BlogForm extends Component {
             { withCredentials: true }
             )
             .then(response => {
+                if (this.state.featured_image) {
+                    this.featuredImageRef.current.dropzone.removeAllFiles()
+                }
+                
                 this.setState({
                     title: "",
                     blog_status: "",
-                    content: ""
+                    content: "",
+                    featured_image: ""
                 });
 
                 this.props.handleSuccessfullFormSubmission(
@@ -115,18 +141,35 @@ export default class BlogForm extends Component {
 
                 <div className="one-column">
                     <RichTextEditor 
-                    handleRichTextEditorChange={this.handleRichTextEditorChange} 
+                    handleRichTextEditorChange={this.handleRichTextEditorChange}
+                    editMode={this.props.editMode}
+                    contentToEdit={
+                        this.props.editMode && this.props.blog.content 
+                        ? this.props.blog.content 
+                        : null}
                     />
                 </div>
 
                 <div className="image-uploaders">
+                    {this.props.editMode && this.props.blog.featured_image_url ? (
+                    <div className="portfolio-manager-image-wrapper">
+                    <img src={this.props.blog.featured_image_url} />
+      
+                    <div className="image-ramoval-link">
+                      <a>Remove file</a>
+                    </div>
+                    </div>
+                    ) : (
                     <DropzoneComponent
-                    config={this.componentConfig()}
-                    djsConfig={this.djsConfig()}
-                    eventHandlers={this.handleFeaturedImageDrop()}
+                        ref={this.featuredImageRef}
+                        config={this.componentConfig()}
+                        djsConfig={this.djsConfig()}
+                        eventHandlers={this.handleFeaturedImageDrop()}
                     >
                         <div className="dz-message">Featured Image</div>
-                    </DropzoneComponent>
+                    </DropzoneComponent> 
+                    )
+                    }
                 </div>
 
                 <button className="btn">Save</button>
